@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="easyui/demo/demo.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="easyui/jquery.edatagrid.js"></script>
+</head>
+<body>
+<table id="dg" title="商品管理" class="easyui-datagrid" style="width:700px;height:350px"
+       url="product/get_products"
+       toolbar="#toolbar" pagination="true" rownumbers="true" fitColumns="true" singleSelect="true">
+    <thead>
+    <tr>
+        <th field="id" width="50">商品编号</th>
+        <th field="name" width="50">商品名称</th>
+        <th field="price" width="50">商品价格</th>
+        <th field="num" width="50">商品数量</th>
+    </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newProduct()">添加商品</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editProduct()">编辑商品</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyProduct()">删除商品</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="changeNum()">修改库存</a>
+    <div id="tb" style="padding:3px">
+        <span>商品名称:</span>
+        <input id="pname" style="line-height:26px;border:1px solid #ccc">
+        <a href="#" class="easyui-linkbutton" plain="true" onclick="doSearch()">搜索</a>
+    </div>
+</div>
+<!----------------------------------------------商品添加小窗口---------------------------------------------------------->
+<div id="dlg" class="easyui-dialog" style="width:400px" data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons'">
+    <form id="fm" method="post" novalidate style="margin:0;padding:20px 50px">
+        <h3>添加商品</h3>
+        <div style="margin-bottom:10px">
+            <input name="name" class="easyui-textbox" required="true" label="商品名称:" style="width:100%">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="price" class="easyui-textbox" required="true" label="商品价格:" style="width:100%">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="num" class="easyui-textbox" required="true" label="商品数量:" style="width:100%"->
+        </div>
+    </form>
+</div>
+<div id="dlg-buttons">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveProduct()" style="width:90px">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">取消</a>
+</div>
+<!---------------------------------------------------------------------------------------------------------------------->
+<!----------------------------------------------商品编辑小窗口---------------------------------------------------------->
+<div id="dlg1" class="easyui-dialog" style="width:400px" data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons1'">
+    <form id="fm1" method="post" novalidate style="margin:0;padding:20px 50px">
+        <h3>编辑商品</h3>
+        <input name="id" type="hidden" label="商品编号:" style="width:100%">
+        <div style="margin-bottom:10px">
+            <input name="name" class="easyui-textbox" required="true" label="商品名称:" style="width:100%">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="price" class="easyui-textbox" required="true" label="商品价格:" style="width:100%">
+        </div>
+        <div style="margin-bottom:10px">
+            <input name="num" class="easyui-textbox" required="true" label="商品数量:" style="width:100%">
+        </div>
+    </form>
+</div>
+<div id="dlg-buttons1">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="updateProduct()" style="width:90px">保存</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg1').dialog('close')" style="width:90px">取消</a>
+</div>
+<!---------------------------------------------------------------------------------------------------------------------->
+<!----------------------------------------------商品出/入库小窗口---------------------------------------------------------->
+<div id="dlg3" class="easyui-dialog" style="width:400px" data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons3'">
+    <form id="fm3" method="post" novalidate style="margin:0;padding:20px 50px">
+        <h3>修改库存</h3>
+        <input name="id" type="hidden" label="商品编号:">
+        <input name="num" class="easyui-textbox" required="true" label="商品数量:" style="width:100%" readonly="readonly">
+        <input name="changeNum" class="easyui-textbox" required="true" label="出入数量:" style="width:100%">
+    </form>
+</div>
+<div id="dlg-buttons3">
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="removeNum()" style="width:90px">出库</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="addNum()" style="width:90px">入库</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg3').dialog('close')" style="width:90px">取消</a>
+</div>
+<!---------------------------------------------------------------------------------------------------------------------->
+<script type="text/javascript">
+    var url;
+    function newProduct(){
+        $('#dlg').dialog('open').dialog('center').dialog('setTitle','添加商品');
+        $('#fm').form('clear');
+        url = 'product/save_product';
+    }
+    function editProduct(){
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $('#dlg1').dialog('open').dialog('center').dialog('setTitle','编辑商品');
+            $('#fm1').form('load',row);
+        }
+    }
+    function updateProduct(){
+        $('#fm1').form('submit',{
+            url: "product/update_product",
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $('#dlg1').dialog('close');		// close the dialog
+                    $('#dg').datagrid('reload');	// reload the user data
+                }
+            }
+        });
+    }
+    function saveProduct(){
+        $('#fm').form('submit',{
+            url: "product/save_product",
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $('#dlg').dialog('close');		// close the dialog
+                    $('#dg').datagrid('reload');	// reload the user data
+                }
+            }
+        });
+    }
+    function destroyProduct(){
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.messager.confirm('确认','你确定要删除该商品?',function(r){
+                if (r){
+                    $.post('product/del_product',{id:row.id},function(result){
+                        if (result.success){
+                            $('#dg').datagrid('reload');	// reload the user data
+                        } else {
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+    }
+    /* 鼠标聚焦时，回车事件 */
+    $("#pname").bind("keypress", function(){
+        if (event.keyCode == 13){
+            // 触发需要调用的方法
+            doSearch();
+        }
+    })
+    function doSearch(){
+        $('#dg').datagrid('load',{
+            name : $('#pname').val()
+        });
+    }
+    function changeNum(){
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $('#dlg3').dialog('open').dialog('center').dialog('setTitle','修改库存');
+            $('#fm3').form('load',row);
+        }
+    }
+    function removeNum(){
+        $('#fm3').form('submit',{
+            url: "product/remove_product_num",
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $('#dlg3').dialog('close');		// close the dialog
+                    $('#dg').datagrid('reload');	// reload the user data
+                }
+            }
+        });
+    }
+    function addNum(){
+        $('#fm3').form('submit',{
+            url: "product/add_product_num",
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                var result = eval('('+result+')');
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    $('#dlg3').dialog('close');		// close the dialog
+                    $('#dg').datagrid('reload');	// reload the user data
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
