@@ -1,2 +1,2 @@
 Springboot+easyui+mysql
-增删改查分页搜索
+功能：增删改查分页搜索增删改查分页搜索
